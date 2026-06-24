@@ -40,6 +40,13 @@
   word-break: break-all;
 }
 
+#__div-property-inspector-panel .__dpi-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 #__div-property-inspector-panel .__dpi-picker {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 34px;
@@ -130,6 +137,22 @@
 
 #__div-property-inspector-panel .__dpi-button:hover {
   background: #4b5563;
+}
+
+#__div-property-inspector-panel .__dpi-reveal {
+  background: #7c3aed;
+}
+
+#__div-property-inspector-panel .__dpi-reveal:hover {
+  background: #6d28d9;
+}
+
+#__div-property-inspector-panel .__dpi-hide {
+  background: #0f766e;
+}
+
+#__div-property-inspector-panel .__dpi-hide:hover {
+  background: #0d9488;
 }
 
 #__div-property-inspector-panel .__dpi-status {

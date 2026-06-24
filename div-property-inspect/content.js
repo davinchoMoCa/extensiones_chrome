@@ -13,6 +13,7 @@
   let pinnedEl = null;
   let originalState = null;
   let selectableEls = [];
+  const revealedPasswords = new WeakMap();
 
   const HIGHLIGHT_CLASS = "__dpi-highlight";
   const HOVER_CLASS = "__dpi-hover";
@@ -145,6 +146,33 @@
     labelEl.textContent = "Selecciona un elemento";
     p.appendChild(labelEl);
 
+    const quickActions = document.createElement("div");
+    quickActions.className = "__dpi-quick-actions";
+
+    const revealBtn = document.createElement("button");
+    revealBtn.type = "button";
+    revealBtn.className = "__dpi-button __dpi-reveal";
+    revealBtn.textContent = "Mostrar passwords";
+    revealBtn.addEventListener("click", (e) => {
+      swallow(e);
+      revealPasswordInputs();
+    }, true);
+    revealBtn.addEventListener("mousedown", swallow, true);
+    quickActions.appendChild(revealBtn);
+
+    const hideBtn = document.createElement("button");
+    hideBtn.type = "button";
+    hideBtn.className = "__dpi-button __dpi-hide";
+    hideBtn.textContent = "Ocultar passwords";
+    hideBtn.addEventListener("click", (e) => {
+      swallow(e);
+      hidePasswordInputs();
+    }, true);
+    hideBtn.addEventListener("mousedown", swallow, true);
+    quickActions.appendChild(hideBtn);
+
+    p.appendChild(quickActions);
+
     const pickerRow = document.createElement("div");
     pickerRow.className = "__dpi-picker";
 
@@ -197,6 +225,7 @@
     p.appendChild(actions);
     document.body.appendChild(p);
     refreshElementPicker();
+    autoSelectFirstEditable();
     return p;
   }
 
@@ -213,6 +242,38 @@
     showStatus.timer = setTimeout(() => {
       if (statusEl) statusEl.textContent = "";
     }, 1200);
+  }
+
+  function getPasswordInputs() {
+    return Array.from(document.querySelectorAll("input"))
+      .filter((el) => isVisibleElement(el) && (el.type === "password" || revealedPasswords.has(el)));
+  }
+
+  function revealPasswordInputs() {
+    const inputs = getPasswordInputs();
+    inputs.forEach((input) => {
+      if (!revealedPasswords.has(input)) {
+        revealedPasswords.set(input, input.getAttribute("type") || input.type || "password");
+      }
+      input.type = "text";
+      input.setAttribute("type", "text");
+    });
+    refreshElementPicker();
+    if (!pinnedEl && inputs[0]) pin(inputs[0]);
+    showStatus(inputs.length ? `Mostrados: ${inputs.length}` : "No encontre passwords");
+  }
+
+  function hidePasswordInputs() {
+    const inputs = getPasswordInputs();
+    inputs.forEach((input) => {
+      const originalType = revealedPasswords.get(input) || "password";
+      input.type = originalType;
+      input.setAttribute("type", originalType);
+      revealedPasswords.delete(input);
+    });
+    refreshElementPicker();
+    if (pinnedEl) rebuildFields();
+    showStatus(inputs.length ? `Ocultados: ${inputs.length}` : "No habia passwords visibles");
   }
 
   function makeTextField(label, value, onInput, placeholder = "") {
@@ -328,6 +389,14 @@
     } else {
       pickerEl.value = "";
     }
+  }
+
+  function autoSelectFirstEditable() {
+    if (pinnedEl || !selectableEls.length) return;
+    const firstPassword = selectableEls.find((el) => el.tagName && el.tagName.toLowerCase() === "input" && el.type === "password");
+    const firstInput = selectableEls.find((el) => el.tagName && el.tagName.toLowerCase() === "input");
+    const first = firstPassword || firstInput;
+    if (first) pin(first);
   }
 
   function addCommonFields(el, out) {
@@ -520,6 +589,7 @@
     if (fieldsEl) fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
     if (labelEl) labelEl.textContent = "Selecciona un elemento";
     refreshElementPicker();
+    autoSelectFirstEditable();
     positionPanelDocked();
   }
 
