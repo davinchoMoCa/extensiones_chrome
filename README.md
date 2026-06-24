@@ -47,5 +47,6 @@ Gestor de favoritos para buscar, navegar por carpetas, editar enlaces, mover fav
 - `Div Inspector` usa `shared-assets/div-inspector-copy-icon-1024.png`, orientado a inspeccionar/copiar.
 - `Div Inspector Modify` usa `shared-assets/div-inspector-icon-1024.png`, orientado a mover/redimensionar.
 - `Div Inspector Properties` reutiliza el icono de inspeccion/copia como base visual.
+- `Find Bookmarks` usa `find-bookmarks/icons/icon-1024.png`, orientado a buscar y navegar favoritos.
 
 Cada extension incluye sus tamanos exportados para Chrome en su carpeta `icons/`.
