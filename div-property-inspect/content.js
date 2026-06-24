@@ -7,10 +7,12 @@
   let active = false;
   let panel = null;
   let labelEl = null;
+  let pickerEl = null;
   let fieldsEl = null;
   let statusEl = null;
   let pinnedEl = null;
   let originalState = null;
+  let selectableEls = [];
 
   const HIGHLIGHT_CLASS = "__dpi-highlight";
   const HOVER_CLASS = "__dpi-hover";
@@ -143,6 +145,32 @@
     labelEl.textContent = "Selecciona un elemento";
     p.appendChild(labelEl);
 
+    const pickerRow = document.createElement("div");
+    pickerRow.className = "__dpi-picker";
+
+    pickerEl = document.createElement("select");
+    pickerEl.className = "__dpi-picker-select";
+    pickerEl.addEventListener("change", () => {
+      const index = Number(pickerEl.value);
+      const el = selectableEls[index];
+      if (el) pin(el);
+    });
+    pickerRow.appendChild(pickerEl);
+
+    const refreshBtn = document.createElement("button");
+    refreshBtn.type = "button";
+    refreshBtn.className = "__dpi-button __dpi-refresh";
+    refreshBtn.textContent = "↻";
+    refreshBtn.title = "Actualizar lista";
+    refreshBtn.addEventListener("click", (e) => {
+      swallow(e);
+      refreshElementPicker();
+      showStatus("Lista actualizada");
+    }, true);
+    refreshBtn.addEventListener("mousedown", swallow, true);
+    pickerRow.appendChild(refreshBtn);
+    p.appendChild(pickerRow);
+
     fieldsEl = document.createElement("div");
     fieldsEl.className = "__dpi-fields";
     fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
@@ -168,6 +196,7 @@
 
     p.appendChild(actions);
     document.body.appendChild(p);
+    refreshElementPicker();
     return p;
   }
 
@@ -241,6 +270,64 @@
     span.textContent = label;
     wrap.append(input, span);
     return wrap;
+  }
+
+  function isVisibleElement(el) {
+    if (!isElementNode(el) || isInspectorNode(el)) return false;
+    const rect = el.getBoundingClientRect();
+    const style = window.getComputedStyle(el);
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      style.opacity !== "0"
+    );
+  }
+
+  function getSelectableElements() {
+    const selector = [
+      "input", "textarea", "select", "button", "a[href]", "img",
+      "[contenteditable='true']", "[role='button']",
+    ].join(",");
+    return Array.from(document.querySelectorAll(selector))
+      .filter((el) => shouldHighlight(el) && isVisibleElement(el));
+  }
+
+  function describeSelectable(el, index) {
+    const tag = el.tagName.toLowerCase();
+    const parts = [String(index + 1).padStart(2, "0"), tag];
+    if (tag === "input") parts.push(`type=${el.type || getAttr(el, "type") || "text"}`);
+    if (getAttr(el, "name")) parts.push(`name=${getAttr(el, "name")}`);
+    if (el.id) parts.push(`#${el.id}`);
+    const text = (el.placeholder || el.alt || el.textContent || "").trim().replace(/\s+/g, " ");
+    if (text) parts.push(`"${text.slice(0, 32)}"`);
+    return parts.join(" · ");
+  }
+
+  function refreshElementPicker() {
+    if (!pickerEl) return;
+    selectableEls = getSelectableElements();
+    pickerEl.replaceChildren();
+
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = selectableEls.length ? "Elegir elemento visible..." : "No encontré elementos editables";
+    pickerEl.appendChild(first);
+
+    selectableEls.forEach((el, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = describeSelectable(el, index);
+      pickerEl.appendChild(option);
+    });
+
+    if (pinnedEl) {
+      const index = selectableEls.indexOf(pinnedEl);
+      pickerEl.value = index >= 0 ? String(index) : "";
+    } else {
+      pickerEl.value = "";
+    }
   }
 
   function addCommonFields(el, out) {
@@ -405,8 +492,10 @@
     if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
     panel = null;
     labelEl = null;
+    pickerEl = null;
     fieldsEl = null;
     statusEl = null;
+    selectableEls = [];
     document.removeEventListener("mouseover", onMouseOver, true);
     document.removeEventListener("mouseout", onMouseOut, true);
     document.removeEventListener("mousemove", onMouseMove, true);
@@ -430,6 +519,7 @@
     originalState = null;
     if (fieldsEl) fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
     if (labelEl) labelEl.textContent = "Selecciona un elemento";
+    refreshElementPicker();
     positionPanelDocked();
   }
 
@@ -439,6 +529,7 @@
     originalState = getOriginalState(el);
     el.classList.add(PINNED_CLASS);
     if (labelEl) labelEl.textContent = getLabel(el);
+    refreshElementPicker();
     rebuildFields();
     positionPanelAt(el);
   }

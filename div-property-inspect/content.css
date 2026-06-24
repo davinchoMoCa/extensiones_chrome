@@ -40,6 +40,25 @@
   word-break: break-all;
 }
 
+#__div-property-inspector-panel .__dpi-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+#__div-property-inspector-panel .__dpi-picker-select {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  background: #1f2937;
+  color: #f9fafb;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
 #__div-property-inspector-panel .__dpi-fields {
   display: grid;
   gap: 8px;
