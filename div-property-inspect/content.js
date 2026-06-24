@@ -321,6 +321,11 @@
     });
   }
 
+  function clampNumber(value, min, max) {
+    if (min > max) return min;
+    return Math.min(Math.max(value, min), max);
+  }
+
   function positionPanelAt(el) {
     if (!panel || !el) return;
     panel.style.display = "block";
@@ -329,8 +334,8 @@
     let x = rect.left;
     let y = rect.top - pRect.height - 8;
     if (y < 0) y = rect.bottom + 8;
-    if (x + pRect.width > window.innerWidth) x = window.innerWidth - pRect.width - 6;
-    if (x < 0) x = 6;
+    x = clampNumber(x, 6, window.innerWidth - pRect.width - 6);
+    y = clampNumber(y, 6, window.innerHeight - pRect.height - 6);
     panel.style.left = x + "px";
     panel.style.top = y + "px";
   }
@@ -341,8 +346,9 @@
     let x = e.clientX + offset;
     let y = e.clientY + offset;
     const rect = panel.getBoundingClientRect();
-    if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 6;
+    x = clampNumber(x, 6, window.innerWidth - rect.width - 6);
     if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - offset;
+    y = clampNumber(y, 6, window.innerHeight - rect.height - 6);
     panel.style.left = x + "px";
     panel.style.top = y + "px";
   }

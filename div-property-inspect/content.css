@@ -16,6 +16,7 @@
 }
 
 #__div-property-inspector-panel {
+  all: initial;
   position: fixed;
   z-index: 2147483647;
   display: none;
