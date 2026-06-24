@@ -367,8 +367,8 @@
     document.addEventListener("mouseover", onMouseOver, true);
     document.addEventListener("mouseout", onMouseOut, true);
     document.addEventListener("mousemove", onMouseMove, true);
-    document.addEventListener("click", onClick, true);
-    document.addEventListener("mousedown", blockEvent, true);
+    document.addEventListener("mousedown", onInspectMouseDown, true);
+    document.addEventListener("click", blockEvent, true);
     document.addEventListener("mouseup", blockEvent, true);
     document.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("scroll", onWindowMove, true);
@@ -387,8 +387,8 @@
     document.removeEventListener("mouseover", onMouseOver, true);
     document.removeEventListener("mouseout", onMouseOut, true);
     document.removeEventListener("mousemove", onMouseMove, true);
-    document.removeEventListener("click", onClick, true);
-    document.removeEventListener("mousedown", blockEvent, true);
+    document.removeEventListener("mousedown", onInspectMouseDown, true);
+    document.removeEventListener("click", blockEvent, true);
     document.removeEventListener("mouseup", blockEvent, true);
     document.removeEventListener("keydown", onKeyDown, true);
     window.removeEventListener("scroll", onWindowMove, true);
@@ -447,21 +447,21 @@
     e.stopImmediatePropagation();
   }
 
-  function onClick(e) {
+  function selectTarget(target) {
+    if (!(target instanceof HTMLElement)) return;
+    if (!shouldHighlight(target)) return;
+    document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
+    if (pinnedEl !== target) pin(target);
+    else refreshPinnedLabel();
+  }
+
+  function onInspectMouseDown(e) {
     const target = e.target;
     if (isInsidePanel(target)) return;
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
-    if (!(target instanceof HTMLElement)) return;
-    if (!shouldHighlight(target)) return;
-    if (pinnedEl === target) {
-      unpin();
-      if (panel) panel.style.display = "none";
-      return;
-    }
-    document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
-    pin(target);
+    selectTarget(target);
   }
 
   function onKeyDown(e) {
