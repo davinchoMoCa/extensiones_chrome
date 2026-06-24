@@ -43,6 +43,7 @@
 #__div-property-inspector-panel .__dpi-fields {
   display: grid;
   gap: 8px;
+  color: #94a3b8;
 }
 
 #__div-property-inspector-panel .__dpi-field {

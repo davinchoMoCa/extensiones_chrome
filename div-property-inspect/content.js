@@ -115,13 +115,18 @@
   function createPanel() {
     const p = document.createElement("div");
     p.id = "__div-property-inspector-panel";
+    p.style.display = "block";
+    p.style.right = "12px";
+    p.style.top = "12px";
 
     labelEl = document.createElement("div");
     labelEl.className = "__dpi-label";
+    labelEl.textContent = "Selecciona un elemento";
     p.appendChild(labelEl);
 
     fieldsEl = document.createElement("div");
     fieldsEl.className = "__dpi-fields";
+    fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
     p.appendChild(fieldsEl);
 
     const actions = document.createElement("div");
@@ -312,7 +317,6 @@
 
   function refreshPinnedLabel() {
     if (pinnedEl && labelEl) labelEl.textContent = getLabel(pinnedEl);
-    if (pinnedEl) positionPanelAt(pinnedEl);
   }
 
   function highlightAll() {
@@ -326,30 +330,34 @@
     return Math.min(Math.max(value, min), max);
   }
 
+  function positionPanelDocked() {
+    if (!panel) return;
+    panel.style.display = "block";
+    panel.style.right = "12px";
+    panel.style.top = "12px";
+    panel.style.left = "";
+  }
+
   function positionPanelAt(el) {
     if (!panel || !el) return;
-    panel.style.display = "block";
-    const rect = el.getBoundingClientRect();
-    const pRect = panel.getBoundingClientRect();
-    let x = rect.left;
-    let y = rect.top - pRect.height - 8;
-    if (y < 0) y = rect.bottom + 8;
-    x = clampNumber(x, 6, window.innerWidth - pRect.width - 6);
-    y = clampNumber(y, 6, window.innerHeight - pRect.height - 6);
-    panel.style.left = x + "px";
-    panel.style.top = y + "px";
+    positionPanelDocked();
   }
 
   function positionPanelAtCursor(e) {
     if (!panel) return;
+    if (!pinnedEl) {
+      positionPanelDocked();
+      return;
+    }
     const offset = 14;
     let x = e.clientX + offset;
     let y = e.clientY + offset;
-    const rect = panel.getBoundingClientRect();
-    x = clampNumber(x, 6, window.innerWidth - rect.width - 6);
-    if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - offset;
-    y = clampNumber(y, 6, window.innerHeight - rect.height - 6);
+    const pRect = panel.getBoundingClientRect();
+    x = clampNumber(x, 6, window.innerWidth - pRect.width - 6);
+    if (y + pRect.height > window.innerHeight) y = e.clientY - pRect.height - offset;
+    y = clampNumber(y, 6, window.innerHeight - pRect.height - 6);
     panel.style.left = x + "px";
+    panel.style.right = "";
     panel.style.top = y + "px";
   }
 
@@ -393,7 +401,9 @@
       pinnedEl = null;
     }
     originalState = null;
-    if (fieldsEl) fieldsEl.replaceChildren();
+    if (fieldsEl) fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
+    if (labelEl) labelEl.textContent = "Selecciona un elemento";
+    positionPanelDocked();
   }
 
   function pin(el) {
@@ -413,20 +423,17 @@
     if (!shouldHighlight(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     target.classList.add(HOVER_CLASS);
-    if (labelEl) labelEl.textContent = getLabel(target);
-    if (fieldsEl) fieldsEl.replaceChildren();
+    if (labelEl) labelEl.textContent = `Hover: ${getLabel(target)}`;
     if (panel) panel.style.display = "block";
   }
 
   function onMouseOut(e) {
     if (pinnedEl) return;
-    if (e.relatedTarget === null && panel) panel.style.display = "none";
+    if (e.relatedTarget === null && labelEl) labelEl.textContent = "Selecciona un elemento";
   }
 
   function onMouseMove(e) {
     if (pinnedEl) return;
-    if (!panel || panel.style.display === "none") return;
-    positionPanelAtCursor(e);
   }
 
   function onWindowMove() {
