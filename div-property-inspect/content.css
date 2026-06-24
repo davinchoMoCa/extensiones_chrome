@@ -1,0 +1,117 @@
+.__dpi-highlight {
+  outline: 1px dashed rgba(14, 165, 233, 0.45) !important;
+  outline-offset: -1px !important;
+}
+
+.__dpi-hover {
+  outline: 2px solid #0ea5e9 !important;
+  outline-offset: -2px !important;
+  background-color: rgba(14, 165, 233, 0.08) !important;
+}
+
+.__dpi-pinned {
+  outline: 2px solid #8b5cf6 !important;
+  outline-offset: -2px !important;
+  background-color: rgba(139, 92, 246, 0.12) !important;
+}
+
+#__div-property-inspector-panel {
+  position: fixed;
+  z-index: 2147483647;
+  display: none;
+  width: min(360px, calc(100vw - 12px));
+  max-height: min(620px, calc(100vh - 16px));
+  overflow: auto;
+  box-sizing: border-box;
+  background: #111827;
+  color: #f9fafb;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  padding: 10px;
+  font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  pointer-events: auto;
+}
+
+#__div-property-inspector-panel .__dpi-label {
+  margin-bottom: 8px;
+  color: #e5e7eb;
+  word-break: break-all;
+}
+
+#__div-property-inspector-panel .__dpi-fields {
+  display: grid;
+  gap: 8px;
+}
+
+#__div-property-inspector-panel .__dpi-field {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+#__div-property-inspector-panel .__dpi-field span,
+#__div-property-inspector-panel .__dpi-check span {
+  color: #cbd5e1;
+}
+
+#__div-property-inspector-panel input[type="text"],
+#__div-property-inspector-panel select {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 28px;
+  padding: 5px 7px;
+  border-radius: 5px;
+  background: #1f2937;
+  color: #f9fafb;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+#__div-property-inspector-panel input[type="text"]:focus,
+#__div-property-inspector-panel select:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.22);
+}
+
+#__div-property-inspector-panel .__dpi-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+#__div-property-inspector-panel .__dpi-check input {
+  accent-color: #8b5cf6;
+}
+
+#__div-property-inspector-panel .__dpi-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#__div-property-inspector-panel .__dpi-button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 5px;
+  background: #374151;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+#__div-property-inspector-panel .__dpi-button:hover {
+  background: #4b5563;
+}
+
+#__div-property-inspector-panel .__dpi-status {
+  color: #67e8f9;
+  min-width: 0;
+}

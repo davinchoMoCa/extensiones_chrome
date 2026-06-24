@@ -19,6 +19,12 @@ Carpeta: `div-modify-inspect/`
 
 Inspector visual editable para seleccionar elementos, moverlos, redimensionarlos y copiar el CSS aplicado junto con informacion del contenedor padre.
 
+### Div Inspector Properties
+
+Carpeta: `div-property-inspect/`
+
+Inspector visual para seleccionar elementos HTML y modificar atributos o propiedades comunes, como cambiar `input type="text"` a `password`, `email`, `number` y otros tipos.
+
 ## Instalacion local
 
 1. Abre `chrome://extensions`.
@@ -27,10 +33,12 @@ Inspector visual editable para seleccionar elementos, moverlos, redimensionarlos
 4. Selecciona la carpeta de la extension que quieres probar:
    - `div-inspector/`
    - `div-modify-inspect/`
+   - `div-property-inspect/`
 
 ## Iconos
 
 - `Div Inspector` usa `shared-assets/div-inspector-copy-icon-1024.png`, orientado a inspeccionar/copiar.
 - `Div Inspector Modify` usa `shared-assets/div-inspector-icon-1024.png`, orientado a mover/redimensionar.
+- `Div Inspector Properties` reutiliza el icono de inspeccion/copia como base visual.
 
 Cada extension incluye sus tamanos exportados para Chrome en su carpeta `icons/`.

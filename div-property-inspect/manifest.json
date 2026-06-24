@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Div Inspector Properties",
+  "version": "1.0.0",
+  "description": "Inspecciona elementos HTML y modifica atributos o propiedades comunes directamente en la pagina.",
+  "author": "Davincho Moca",
+  "homepage_url": "https://moca.gt",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Div Inspector Properties",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
