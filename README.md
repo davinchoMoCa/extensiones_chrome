@@ -25,6 +25,12 @@ Carpeta: `div-property-inspect/`
 
 Inspector visual para rastrear solo `input` y modificar propiedades comunes, como cambiar `input type="password"` a `text`, `email`, `number` y otros tipos.
 
+### Find Bookmarks
+
+Carpeta: `find-bookmarks/`
+
+Gestor de favoritos para buscar, navegar por carpetas, editar enlaces, mover favoritos y ordenar carpetas desde una vista completa.
+
 ## Instalacion local
 
 1. Abre `chrome://extensions`.
@@ -34,6 +40,7 @@ Inspector visual para rastrear solo `input` y modificar propiedades comunes, com
    - `div-inspector/`
    - `div-modify-inspect/`
    - `div-property-inspect/`
+   - `find-bookmarks/`
 
 ## Iconos
 

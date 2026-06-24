@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Find Bookmarks",
+  "version": "1.0.0",
+  "description": "Busca, navega, edita y ordena tus favoritos de Chrome.",
+  "author": "Davincho Moca",
+  "homepage_url": "https://moca.gt",
+  "permissions": ["bookmarks", "tabs", "favicon"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Buscar favoritos (Alt+Shift+B)"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+B"
+      },
+      "description": "Abrir buscador de favoritos"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["_favicon/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

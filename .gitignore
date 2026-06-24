@@ -1,6 +1,5 @@
 .DS_Store
 .claude/
-find-bookmarks/
 *.log
 node_modules/
 dist/
