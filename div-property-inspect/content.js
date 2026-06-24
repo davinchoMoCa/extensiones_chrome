@@ -40,6 +40,14 @@
     return isElementNode(e.target) ? e.target : null;
   }
 
+  function getPointElement(e) {
+    if (typeof e.clientX !== "number" || typeof e.clientY !== "number") return null;
+    const stack = typeof document.elementsFromPoint === "function"
+      ? document.elementsFromPoint(e.clientX, e.clientY)
+      : [document.elementFromPoint(e.clientX, e.clientY)];
+    return stack.find((node) => shouldHighlight(node)) || null;
+  }
+
   function isInspectorNode(el) {
     if (!el || !el.classList) return false;
     if (typeof el.id === "string" && el.id.startsWith("__div-property-inspector")) return true;
@@ -378,8 +386,12 @@
     document.addEventListener("mouseover", onMouseOver, true);
     document.addEventListener("mouseout", onMouseOut, true);
     document.addEventListener("mousemove", onMouseMove, true);
-    document.addEventListener("mousedown", onInspectMouseDown, true);
-    document.addEventListener("click", blockEvent, true);
+    window.addEventListener("pointerdown", onInspectPointer, true);
+    document.addEventListener("pointerdown", onInspectPointer, true);
+    window.addEventListener("mousedown", onInspectPointer, true);
+    document.addEventListener("mousedown", onInspectPointer, true);
+    window.addEventListener("click", onInspectPointer, true);
+    document.addEventListener("click", onInspectPointer, true);
     document.addEventListener("mouseup", blockEvent, true);
     document.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("scroll", onWindowMove, true);
@@ -398,8 +410,12 @@
     document.removeEventListener("mouseover", onMouseOver, true);
     document.removeEventListener("mouseout", onMouseOut, true);
     document.removeEventListener("mousemove", onMouseMove, true);
-    document.removeEventListener("mousedown", onInspectMouseDown, true);
-    document.removeEventListener("click", blockEvent, true);
+    window.removeEventListener("pointerdown", onInspectPointer, true);
+    document.removeEventListener("pointerdown", onInspectPointer, true);
+    window.removeEventListener("mousedown", onInspectPointer, true);
+    document.removeEventListener("mousedown", onInspectPointer, true);
+    window.removeEventListener("click", onInspectPointer, true);
+    document.removeEventListener("click", onInspectPointer, true);
     document.removeEventListener("mouseup", blockEvent, true);
     document.removeEventListener("keydown", onKeyDown, true);
     window.removeEventListener("scroll", onWindowMove, true);
@@ -466,8 +482,8 @@
     else refreshPinnedLabel();
   }
 
-  function onInspectMouseDown(e) {
-    const target = getEventElement(e);
+  function onInspectPointer(e) {
+    const target = getPointElement(e) || getEventElement(e);
     if (isInsidePanel(target)) return;
     e.preventDefault();
     e.stopPropagation();
