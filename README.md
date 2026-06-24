@@ -30,4 +30,7 @@ Inspector visual editable para seleccionar elementos, moverlos, redimensionarlos
 
 ## Iconos
 
-Ambas extensiones usan el icono generado en `shared-assets/div-inspector-icon-1024.png`, con tamanos exportados para Chrome en cada carpeta `icons/`.
+- `Div Inspector` usa `shared-assets/div-inspector-copy-icon-1024.png`, orientado a inspeccionar/copiar.
+- `Div Inspector Modify` usa `shared-assets/div-inspector-icon-1024.png`, orientado a mover/redimensionar.
+
+Cada extension incluye sus tamanos exportados para Chrome en su carpeta `icons/`.
