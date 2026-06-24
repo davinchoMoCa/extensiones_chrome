@@ -54,7 +54,7 @@
   function isInspectorNode(el) {
     if (!el || !el.classList) return false;
     if (typeof el.id === "string" && el.id.startsWith("__div-property-inspector")) return true;
-    return Array.from(el.classList).some((c) => c.startsWith("__dpi-"));
+    return Boolean(el.closest && el.closest("#__div-property-inspector-panel"));
   }
 
   function isInsidePanel(el) {
