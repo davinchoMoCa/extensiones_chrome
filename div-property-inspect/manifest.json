@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Div Inspector Properties",
   "version": "1.0.0",
-  "description": "Rastrea campos de formulario y modifica propiedades comunes como el tipo de input.",
+  "description": "Rastrea inputs y modifica propiedades comunes como type, placeholder, value y validacion.",
   "author": "Davincho Moca",
   "homepage_url": "https://moca.gt",
   "permissions": ["activeTab", "scripting", "storage"],

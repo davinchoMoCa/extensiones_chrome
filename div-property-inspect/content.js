@@ -7,12 +7,10 @@
   let active = false;
   let panel = null;
   let labelEl = null;
-  let pickerEl = null;
   let fieldsEl = null;
   let statusEl = null;
   let pinnedEl = null;
   let originalState = null;
-  let selectableEls = [];
   const revealedPasswords = new WeakMap();
 
   const HIGHLIGHT_CLASS = "__dpi-highlight";
@@ -48,7 +46,7 @@
     const stack = typeof document.elementsFromPoint === "function"
       ? document.elementsFromPoint(e.clientX, e.clientY)
       : [document.elementFromPoint(e.clientX, e.clientY)];
-    return stack.find((node) => shouldHighlight(node)) || null;
+    return stack.find((node) => shouldTrackInput(node)) || null;
   }
 
   function isInspectorNode(el) {
@@ -71,10 +69,13 @@
     return true;
   }
 
-  function isFormField(el) {
+  function isInputField(el) {
     if (!isElementNode(el)) return false;
-    const tag = el.tagName.toLowerCase();
-    return tag === "input" || tag === "textarea" || tag === "select";
+    return el.tagName.toLowerCase() === "input";
+  }
+
+  function shouldTrackInput(el) {
+    return shouldHighlight(el) && isInputField(el);
   }
 
   function cleanClassList(el) {
@@ -133,7 +134,7 @@
     });
     if (originalState.value !== null && "value" in pinnedEl) pinnedEl.value = originalState.value;
     if (originalState.checked !== null && "checked" in pinnedEl) pinnedEl.checked = originalState.checked;
-    if (!pinnedEl.matches("input,textarea,select")) {
+    if (!pinnedEl.matches("input")) {
       pinnedEl.textContent = originalState.textContent;
     }
     rebuildFields();
@@ -149,7 +150,7 @@
 
     labelEl = document.createElement("div");
     labelEl.className = "__dpi-label";
-    labelEl.textContent = "Selecciona un campo";
+    labelEl.textContent = "Inputs";
     p.appendChild(labelEl);
 
     const quickActions = document.createElement("div");
@@ -179,35 +180,9 @@
 
     p.appendChild(quickActions);
 
-    const pickerRow = document.createElement("div");
-    pickerRow.className = "__dpi-picker";
-
-    pickerEl = document.createElement("select");
-    pickerEl.className = "__dpi-picker-select";
-    pickerEl.addEventListener("change", () => {
-      const index = Number(pickerEl.value);
-      const el = selectableEls[index];
-      if (el) pin(el);
-    });
-    pickerRow.appendChild(pickerEl);
-
-    const refreshBtn = document.createElement("button");
-    refreshBtn.type = "button";
-    refreshBtn.className = "__dpi-button __dpi-refresh";
-    refreshBtn.textContent = "↻";
-    refreshBtn.title = "Actualizar lista";
-    refreshBtn.addEventListener("click", (e) => {
-      swallow(e);
-      refreshElementPicker();
-      showStatus("Lista actualizada");
-    }, true);
-    refreshBtn.addEventListener("mousedown", swallow, true);
-    pickerRow.appendChild(refreshBtn);
-    p.appendChild(pickerRow);
-
     fieldsEl = document.createElement("div");
     fieldsEl.className = "__dpi-fields";
-    fieldsEl.textContent = "Haz clic sobre un input, textarea o select; o elige un campo de la lista.";
+    fieldsEl.textContent = "Usa los botones para mostrar u ocultar passwords, o haz clic sobre un input para editar sus propiedades.";
     p.appendChild(fieldsEl);
 
     const actions = document.createElement("div");
@@ -230,8 +205,6 @@
 
     p.appendChild(actions);
     document.body.appendChild(p);
-    refreshElementPicker();
-    autoSelectFirstEditable();
     return p;
   }
 
@@ -264,7 +237,6 @@
       input.type = "text";
       input.setAttribute("type", "text");
     });
-    refreshElementPicker();
     if (!pinnedEl && inputs[0]) pin(inputs[0]);
     showStatus(inputs.length ? `Mostrados: ${inputs.length}` : "No encontre passwords");
   }
@@ -277,7 +249,6 @@
       input.setAttribute("type", originalType);
       revealedPasswords.delete(input);
     });
-    refreshElementPicker();
     if (pinnedEl) rebuildFields();
     showStatus(inputs.length ? `Ocultados: ${inputs.length}` : "No habia passwords visibles");
   }
@@ -352,56 +323,6 @@
     );
   }
 
-  function getSelectableElements() {
-    const selector = "input, textarea, select";
-    return Array.from(document.querySelectorAll(selector))
-      .filter((el) => shouldHighlight(el) && isVisibleElement(el));
-  }
-
-  function describeSelectable(el, index) {
-    const tag = el.tagName.toLowerCase();
-    const parts = [String(index + 1).padStart(2, "0"), tag];
-    if (tag === "input") parts.push(`type=${el.type || getAttr(el, "type") || "text"}`);
-    if (getAttr(el, "name")) parts.push(`name=${getAttr(el, "name")}`);
-    if (el.id) parts.push(`#${el.id}`);
-    const text = (el.placeholder || el.alt || el.textContent || "").trim().replace(/\s+/g, " ");
-    if (text) parts.push(`"${text.slice(0, 32)}"`);
-    return parts.join(" · ");
-  }
-
-  function refreshElementPicker() {
-    if (!pickerEl) return;
-    selectableEls = getSelectableElements();
-    pickerEl.replaceChildren();
-
-    const first = document.createElement("option");
-    first.value = "";
-    first.textContent = selectableEls.length ? "Elegir campo visible..." : "No encontré campos";
-    pickerEl.appendChild(first);
-
-    selectableEls.forEach((el, index) => {
-      const option = document.createElement("option");
-      option.value = String(index);
-      option.textContent = describeSelectable(el, index);
-      pickerEl.appendChild(option);
-    });
-
-    if (pinnedEl) {
-      const index = selectableEls.indexOf(pinnedEl);
-      pickerEl.value = index >= 0 ? String(index) : "";
-    } else {
-      pickerEl.value = "";
-    }
-  }
-
-  function autoSelectFirstEditable() {
-    if (pinnedEl || !selectableEls.length) return;
-    const firstPassword = selectableEls.find((el) => el.tagName && el.tagName.toLowerCase() === "input" && el.type === "password");
-    const firstInput = selectableEls.find((el) => el.tagName && el.tagName.toLowerCase() === "input");
-    const first = firstPassword || firstInput;
-    if (first) pin(first);
-  }
-
   function addCommonFields(el, out) {
     out.push(makeTextField("id", el.id, (value) => { el.id = value; }));
     out.push(makeTextField("class", cleanClassList(el).join(" "), (value) => { el.className = value; }));
@@ -437,28 +358,9 @@
     }
   }
 
-  function addTextareaFields(el, out) {
-    out.push(makeTextField("name", getAttr(el, "name"), (value) => setAttr(el, "name", value)));
-    out.push(makeTextField("placeholder", getAttr(el, "placeholder"), (value) => setAttr(el, "placeholder", value)));
-    out.push(makeTextField("value", el.value || "", (value) => { el.value = value; }));
-    out.push(makeCheckboxField("disabled", el.disabled, (value) => { el.disabled = value; }));
-    out.push(makeCheckboxField("required", el.required, (value) => { el.required = value; }));
-    out.push(makeCheckboxField("readonly", el.readOnly, (value) => { el.readOnly = value; }));
-  }
-
-  function addSelectFields(el, out) {
-    out.push(makeTextField("name", getAttr(el, "name"), (value) => setAttr(el, "name", value)));
-    out.push(makeCheckboxField("disabled", el.disabled, (value) => { el.disabled = value; }));
-    out.push(makeCheckboxField("required", el.required, (value) => { el.required = value; }));
-    out.push(makeCheckboxField("multiple", el.multiple, (value) => { el.multiple = value; }));
-  }
-
   function buildFields(el) {
     const out = [];
-    const tag = el.tagName.toLowerCase();
-    if (tag === "input") addInputFields(el, out);
-    else if (tag === "textarea") addTextareaFields(el, out);
-    else if (tag === "select") addSelectFields(el, out);
+    addInputFields(el, out);
     addCommonFields(el, out);
     return out;
   }
@@ -474,7 +376,7 @@
 
   function highlightAll() {
     document.querySelectorAll("*").forEach((el) => {
-      if (shouldHighlight(el)) el.classList.add(HIGHLIGHT_CLASS);
+      if (shouldTrackInput(el)) el.classList.add(HIGHLIGHT_CLASS);
     });
   }
 
@@ -539,10 +441,8 @@
     if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
     panel = null;
     labelEl = null;
-    pickerEl = null;
     fieldsEl = null;
     statusEl = null;
-    selectableEls = [];
     document.removeEventListener("mouseover", onMouseOver, true);
     document.removeEventListener("mouseout", onMouseOut, true);
     document.removeEventListener("mousemove", onMouseMove, true);
@@ -564,10 +464,8 @@
       pinnedEl = null;
     }
     originalState = null;
-    if (fieldsEl) fieldsEl.textContent = "Haz clic sobre un input, textarea o select; o elige un campo de la lista.";
-    if (labelEl) labelEl.textContent = "Selecciona un campo";
-    refreshElementPicker();
-    autoSelectFirstEditable();
+    if (fieldsEl) fieldsEl.textContent = "Usa los botones para mostrar u ocultar passwords, o haz clic sobre un input para editar sus propiedades.";
+    if (labelEl) labelEl.textContent = "Inputs";
     positionPanelDocked();
   }
 
@@ -577,7 +475,6 @@
     originalState = getOriginalState(el);
     el.classList.add(PINNED_CLASS);
     if (labelEl) labelEl.textContent = getLabel(el);
-    refreshElementPicker();
     rebuildFields();
     positionPanelAt(el);
   }
@@ -586,7 +483,7 @@
     if (pinnedEl) return;
     const target = getEventElement(e);
     if (!target) return;
-    if (!shouldHighlight(target) || !isFormField(target)) return;
+    if (!shouldTrackInput(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     target.classList.add(HOVER_CLASS);
     if (labelEl) labelEl.textContent = `Hover: ${getLabel(target)}`;
@@ -595,7 +492,7 @@
 
   function onMouseOut(e) {
     if (pinnedEl) return;
-    if (e.relatedTarget === null && labelEl) labelEl.textContent = "Selecciona un campo";
+    if (e.relatedTarget === null && labelEl) labelEl.textContent = "Inputs";
   }
 
   function onMouseMove(e) {
@@ -615,7 +512,7 @@
 
   function selectTarget(target) {
     if (!isElementNode(target)) return;
-    if (!shouldHighlight(target) || !isFormField(target)) return;
+    if (!shouldTrackInput(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     if (pinnedEl !== target) pin(target);
     else refreshPinnedLabel();
@@ -644,9 +541,9 @@
     for (const mutation of mutations) {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType !== 1) return;
-        if (shouldHighlight(node)) node.classList.add(HIGHLIGHT_CLASS);
+        if (shouldTrackInput(node)) node.classList.add(HIGHLIGHT_CLASS);
         node.querySelectorAll && node.querySelectorAll("*").forEach((el) => {
-          if (shouldHighlight(el)) el.classList.add(HIGHLIGHT_CLASS);
+          if (shouldTrackInput(el)) el.classList.add(HIGHLIGHT_CLASS);
         });
       });
     }

@@ -23,7 +23,7 @@ Inspector visual editable para seleccionar elementos, moverlos, redimensionarlos
 
 Carpeta: `div-property-inspect/`
 
-Inspector visual para rastrear campos de formulario (`input`, `textarea`, `select`) y modificar propiedades comunes, como cambiar `input type="password"` a `text`, `email`, `number` y otros tipos.
+Inspector visual para rastrear solo `input` y modificar propiedades comunes, como cambiar `input type="password"` a `text`, `email`, `number` y otros tipos.
 
 ## Instalacion local
 
