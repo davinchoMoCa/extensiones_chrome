@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Div Inspector Modify",
+  "version": "1.0.0",
+  "description": "Resalta elementos, permite mover/redimensionar y copia el CSS aplicado con el padre.",
+  "author": "Davincho Moca",
+  "homepage_url": "https://moca.gt",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Div Inspector Modify",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
