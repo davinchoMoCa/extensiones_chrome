@@ -29,6 +29,17 @@
     "file", "hidden", "range", "submit", "button", "reset",
   ];
 
+  function isElementNode(node) {
+    return Boolean(node && node.nodeType === 1 && node.tagName);
+  }
+
+  function getEventElement(e) {
+    const path = typeof e.composedPath === "function" ? e.composedPath() : [];
+    const fromPath = path.find((node) => isElementNode(node));
+    if (fromPath) return fromPath;
+    return isElementNode(e.target) ? e.target : null;
+  }
+
   function isInspectorNode(el) {
     if (!el || !el.classList) return false;
     if (typeof el.id === "string" && el.id.startsWith("__div-property-inspector")) return true;
@@ -41,7 +52,7 @@
   }
 
   function shouldHighlight(el) {
-    if (!el || !el.tagName) return false;
+    if (!isElementNode(el)) return false;
     if (isInspectorNode(el)) return false;
     const tag = el.tagName.toLowerCase();
     if (SKIP_TAGS.has(tag)) return false;
@@ -418,8 +429,8 @@
 
   function onMouseOver(e) {
     if (pinnedEl) return;
-    const target = e.target;
-    if (!(target instanceof HTMLElement)) return;
+    const target = getEventElement(e);
+    if (!target) return;
     if (!shouldHighlight(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     target.classList.add(HOVER_CLASS);
@@ -448,7 +459,7 @@
   }
 
   function selectTarget(target) {
-    if (!(target instanceof HTMLElement)) return;
+    if (!isElementNode(target)) return;
     if (!shouldHighlight(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     if (pinnedEl !== target) pin(target);
@@ -456,7 +467,7 @@
   }
 
   function onInspectMouseDown(e) {
-    const target = e.target;
+    const target = getEventElement(e);
     if (isInsidePanel(target)) return;
     e.preventDefault();
     e.stopPropagation();
