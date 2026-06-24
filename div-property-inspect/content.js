@@ -71,6 +71,12 @@
     return true;
   }
 
+  function isFormField(el) {
+    if (!isElementNode(el)) return false;
+    const tag = el.tagName.toLowerCase();
+    return tag === "input" || tag === "textarea" || tag === "select";
+  }
+
   function cleanClassList(el) {
     if (!el.className || typeof el.className !== "string") return [];
     return el.className
@@ -127,7 +133,7 @@
     });
     if (originalState.value !== null && "value" in pinnedEl) pinnedEl.value = originalState.value;
     if (originalState.checked !== null && "checked" in pinnedEl) pinnedEl.checked = originalState.checked;
-    if (!pinnedEl.matches("input,textarea,select,img")) {
+    if (!pinnedEl.matches("input,textarea,select")) {
       pinnedEl.textContent = originalState.textContent;
     }
     rebuildFields();
@@ -143,7 +149,7 @@
 
     labelEl = document.createElement("div");
     labelEl.className = "__dpi-label";
-    labelEl.textContent = "Selecciona un elemento";
+    labelEl.textContent = "Selecciona un campo";
     p.appendChild(labelEl);
 
     const quickActions = document.createElement("div");
@@ -201,7 +207,7 @@
 
     fieldsEl = document.createElement("div");
     fieldsEl.className = "__dpi-fields";
-    fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
+    fieldsEl.textContent = "Haz clic sobre un input, textarea o select; o elige un campo de la lista.";
     p.appendChild(fieldsEl);
 
     const actions = document.createElement("div");
@@ -347,10 +353,7 @@
   }
 
   function getSelectableElements() {
-    const selector = [
-      "input", "textarea", "select", "button", "a[href]", "img",
-      "[contenteditable='true']", "[role='button']",
-    ].join(",");
+    const selector = "input, textarea, select";
     return Array.from(document.querySelectorAll(selector))
       .filter((el) => shouldHighlight(el) && isVisibleElement(el));
   }
@@ -373,7 +376,7 @@
 
     const first = document.createElement("option");
     first.value = "";
-    first.textContent = selectableEls.length ? "Elegir elemento visible..." : "No encontré elementos editables";
+    first.textContent = selectableEls.length ? "Elegir campo visible..." : "No encontré campos";
     pickerEl.appendChild(first);
 
     selectableEls.forEach((el, index) => {
@@ -450,37 +453,12 @@
     out.push(makeCheckboxField("multiple", el.multiple, (value) => { el.multiple = value; }));
   }
 
-  function addButtonFields(el, out) {
-    out.push(makeSelectField("type", getAttr(el, "type") || "button", ["button", "submit", "reset"], (value) => setAttr(el, "type", value)));
-    out.push(makeTextField("text", el.textContent || "", (value) => { el.textContent = value; }));
-    out.push(makeCheckboxField("disabled", el.disabled, (value) => { el.disabled = value; }));
-  }
-
-  function addLinkFields(el, out) {
-    out.push(makeTextField("href", getAttr(el, "href"), (value) => setAttr(el, "href", value), "https://"));
-    out.push(makeTextField("target", getAttr(el, "target"), (value) => setAttr(el, "target", value), "_blank"));
-    out.push(makeTextField("text", el.textContent || "", (value) => { el.textContent = value; }));
-  }
-
-  function addImageFields(el, out) {
-    out.push(makeTextField("src", getAttr(el, "src"), (value) => setAttr(el, "src", value)));
-    out.push(makeTextField("alt", getAttr(el, "alt"), (value) => setAttr(el, "alt", value)));
-    out.push(makeTextField("width", getAttr(el, "width"), (value) => setAttr(el, "width", value)));
-    out.push(makeTextField("height", getAttr(el, "height"), (value) => setAttr(el, "height", value)));
-  }
-
   function buildFields(el) {
     const out = [];
     const tag = el.tagName.toLowerCase();
     if (tag === "input") addInputFields(el, out);
     else if (tag === "textarea") addTextareaFields(el, out);
     else if (tag === "select") addSelectFields(el, out);
-    else if (tag === "button") addButtonFields(el, out);
-    else if (tag === "a") addLinkFields(el, out);
-    else if (tag === "img") addImageFields(el, out);
-    else {
-      out.push(makeTextField("text", el.textContent || "", (value) => { el.textContent = value; }));
-    }
     addCommonFields(el, out);
     return out;
   }
@@ -586,8 +564,8 @@
       pinnedEl = null;
     }
     originalState = null;
-    if (fieldsEl) fieldsEl.textContent = "Haz clic sobre un input, enlace, imagen, boton o cualquier elemento para editar sus propiedades.";
-    if (labelEl) labelEl.textContent = "Selecciona un elemento";
+    if (fieldsEl) fieldsEl.textContent = "Haz clic sobre un input, textarea o select; o elige un campo de la lista.";
+    if (labelEl) labelEl.textContent = "Selecciona un campo";
     refreshElementPicker();
     autoSelectFirstEditable();
     positionPanelDocked();
@@ -608,7 +586,7 @@
     if (pinnedEl) return;
     const target = getEventElement(e);
     if (!target) return;
-    if (!shouldHighlight(target)) return;
+    if (!shouldHighlight(target) || !isFormField(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     target.classList.add(HOVER_CLASS);
     if (labelEl) labelEl.textContent = `Hover: ${getLabel(target)}`;
@@ -617,7 +595,7 @@
 
   function onMouseOut(e) {
     if (pinnedEl) return;
-    if (e.relatedTarget === null && labelEl) labelEl.textContent = "Selecciona un elemento";
+    if (e.relatedTarget === null && labelEl) labelEl.textContent = "Selecciona un campo";
   }
 
   function onMouseMove(e) {
@@ -637,7 +615,7 @@
 
   function selectTarget(target) {
     if (!isElementNode(target)) return;
-    if (!shouldHighlight(target)) return;
+    if (!shouldHighlight(target) || !isFormField(target)) return;
     document.querySelectorAll("." + HOVER_CLASS).forEach((el) => el.classList.remove(HOVER_CLASS));
     if (pinnedEl !== target) pin(target);
     else refreshPinnedLabel();

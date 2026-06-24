@@ -23,7 +23,7 @@ Inspector visual editable para seleccionar elementos, moverlos, redimensionarlos
 
 Carpeta: `div-property-inspect/`
 
-Inspector visual para seleccionar elementos HTML y modificar atributos o propiedades comunes, como cambiar `input type="text"` a `password`, `email`, `number` y otros tipos.
+Inspector visual para rastrear campos de formulario (`input`, `textarea`, `select`) y modificar propiedades comunes, como cambiar `input type="password"` a `text`, `email`, `number` y otros tipos.
 
 ## Instalacion local
 
